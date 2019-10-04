@@ -990,7 +990,6 @@ static void generate_define(struct generator * g, struct node * p) {
     /* Generate function body. */
     w(g, "~{");
     generate(g, p->left);
-    if (!g->unreachable) w(g, "~MResult := True;~N");
     w(g, "~}");
 
     str_append_string(saved_output, "Var\n");
@@ -1021,6 +1020,11 @@ static void generate_define(struct generator * g, struct node * p) {
     str_delete(g->outbuf);
     g->declarations = saved_declarations;
     g->outbuf = saved_output;
+}
+
+static void generate_functionend(struct generator * g, struct node * p) {
+    (void)p;
+    w(g, "~MResult := True;~N");
 }
 
 static void generate_substring(struct generator * g, struct node * p) {
@@ -1156,6 +1160,7 @@ static void generate(struct generator * g, struct node * p) {
         case c_false:         generate_false(g, p); break;
         case c_true:          break;
         case c_debug:         generate_debug(g, p); break;
+        case c_functionend:   generate_functionend(g, p); break;
         default: fprintf(stderr, "%d encountered\n", p->type);
                  exit(1);
     }
